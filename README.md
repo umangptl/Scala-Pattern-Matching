@@ -1,71 +1,97 @@
-# Programming-Languages-Pattern-Matching
-Main Project
+# Scala-Pattern-Matching
+This Scala program performs pattern matching on strings using only the concatenation, alternation ("|"), and optional ("?") operators of regular expressions. It represents expressions as trees using case classes and evaluates the inputs without using any regular expression libraries.
 
-Write a Scala program that performs pattern matching on strings, where patterns are expressed using only the concatenation, alternation (“|”), and optional (“?”)
-operators of regular expressions (no loops/”*”, no escape characters), and the tokens are letters and digits, plus period (“.”) to mean any letter/digit. Each run
-of the program should accept a pattern, and then any number of strings, reporting only whether they match. Your program should represent expressions as trees 
-(use case classes) and evaluate on the inputs, without using any regular expressions or Scala’s regular expression library except for matching the individual 
-alphanumeric characters, if you’d like. For example:
+## Requirements
+To run the program, you need to have Scala installed on your machine. If Scala is not installed, you can download and install it from the official Scala website: scala-lang.org
 
-pattern? ((h|j)ell. worl?d)|(42)
+## Usage
+1. Clone the repository or download the source code files.
+2. Open a terminal or command prompt and navigate to the project directory.
+3. Compile the Scala source files using the following command:
+```
+scalac Main.scala
+```
+4. Run the program using the following command:
+```
+scala Main
+```
+5. Follow the on-screen prompts to input a pattern and strings to match against the pattern. The program will report whether each string matches the pattern.
 
-string? hello world
+Examples
+Here are some example patterns and their matching results:
 
-match
+Pattern: ((h|j)ell. worl?d)|(42)
 
-string? jello word
+- Input: hello world
+    - Match
+- Input: jello word
+    - Match
+- Input: jelly word
+    - Match
+- Input: 42
+    - Match
+- Input: 24
+    - No match
+- Input: hello world42
+    - No match
 
-match
+Pattern: I (like|love|hate)( (cat|dog))? people
 
-string? jelly word
+- Input: I like cat people
+    - Match
+- Input: I love dog people
+    - Match
+- Input: I hate people
+    - Match
+- Input: I likelovehate people
+    - No match
+- Input: I people
+    - No match
 
-match
+## Grammar
+The program uses the following grammar to parse the patterns:
+```
+S  -: E$
 
-string? 42
+E  -: T E2
 
-match
+E2 -: '|' E3
 
-string? 24
+E2 -: NIL
 
-no match
+E3 -: T E2
 
-string? hello world42
+T  -: F T2
 
-no match
+T2 -: F T2
 
-pattern? I (like|love|hate)( (cat|dog))? people
+T2 -: NIL
 
-string? I like cat people
+F  -: A F2
 
-match
+F2 -: '?' F2
 
-string? I love dog people
+F2 -: NIL
 
-match
+A  -: C
 
-string? I hate people
+A  -: '(' A2
 
-match
+A2 -: E ')'
 
-string? I likelovehate people
-
-no match
-
-string? I people
-
-no match
-
-Bootstrap
+```
 
 An ambiguous grammar for patterns is:
-
+```
 S -: E$ 
 
 E -: C | EE | E'|'E | E'?' | '(' E ')'
 
 C -: '0' | '1' | ... | '9'| 'a' | 'b' | ... | 'z' | '.'
+```
 
-To reflect that option(‘?’) has highest precedence, then concatenation, then alternation(‘|’), the following unambiguous grammar can be created:
+To reflect that option(‘?’) has highest precedence, then concatenation, then alternation(‘|’), the following unambiguous grammar created:
+```
 
  S  -: E$
  
@@ -76,47 +102,4 @@ To reflect that option(‘?’) has highest precedence, then concatenation, then
  F  -: A '?' | A
  
  A  -: C | '(' E ')'
- 
-For the purposes of writing a recursive descent parser, this can be transformed into an ugly but simpler-to-use form:
-
-  S  -: E$
-  
-  E  -: T E2
-  
-  E2 -: '|' E3
-  
-  E2 -: NIL
-  
-  E3 -: T E2
-  
-  T  -: F T2
-  
-  T2 -: F T2
-  
-  T2 -: NIL
-  
-  F  -: A F2
-  
-  F2 -: '?' F2
-  
-  F2 -: NIL
-  
-  A  -: C
-  
-  A  -: '(' A2
-  
-  A2 -: E ')'
-  
-where ‘$’ is eof/end-of-string, and NIL means empty (which in these productions means take the rhs only if others do not apply).
-
-Use the following case classes to get you started. You will need several more, but you should be able to deduce the general pattern from these:
-
-abstract class S
-
-case class E(left: T, right: Option[E2]) extends S
-
-case class E2(left: E3) extends S
-
-case class E3(left: T, right: Option[E2]) extends S
-
-You must implement a recursive descent parser yourself to build a tree of case classes from the input string. Remember not to use any regular expression processing other than for the individual characters (either built in or in external libraries)!
+ ```
